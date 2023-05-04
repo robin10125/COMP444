@@ -1,15 +1,6 @@
 /*
-  SparkFun Inventor’s Kit
-  Circuit 4A-HelloWorld
-
-  The LCD will display the words "Hello World" and show how many seconds have passed since
-  the RedBoard was last reset.
-
-  This sketch was written by SparkFun Electronics, with lots of help from the Arduino community.
-  This code is completely free for any use.
-
-  View circuit diagram and instructions at: https://learn.sparkfun.com/tutorials/sparkfun-inventors-kit-experiment-guide---v41
-  Download drawings and code at: https://github.com/sparkfun/SIK-Guide-Code
+This program allows the user to select characters with a keyboard, and print them to a lcd screen
+TODO: Add memory management control code to prevent text from becoming so large that it potentially goes over memory limit
 */
 
 #include <LiquidCrystal.h>          //the liquid crystal library contains commands for printing to the display
@@ -17,59 +8,106 @@
 
 LiquidCrystal lcd(13, 12, 11, 10, 9, 8);   // tell the RedBoard what pins are connected to the display
 
-string text;
-char helper;
-char lower_letter_array[] = 'abcdefghijklmnopqrstuvwxyx';
-char symbol_array[] = " '.,-!\"?()[]{}:;@$&/\\%#+=*|^_<>";
-char number_array[] = "0123456789"
-int* arrays = {lower_letter_array, upper_letter_array, symbol_array, number_array};
-const int yellow_button = 2;
-const int green_button = 3;
-const int red_button = 4;
+//buttons on circuit.  The integer value indicates the digital pin
+int yellow_button = 2;
+int green_button = 3;
+int red_button = 4;
 
-int l_interator;
-int s_iterator;
-int n_iterator;
-int case_interator;
-int symbols[4] = {0,0,0};
-int indexes[4] = {26,31,10};
+
+String text;  //text to be displayed
+char helper_symbol;  //helper value that stores potential character selection
+
+//the following arrays store the symbols to be used in the vocabulary of the program
+char letter_array[] = "abcdefghijklmnopqrstuvwxyx";
+char symbol_array[] = " '.,-!\"?()[]{}:;@$&/\\%#+=*|^_<>";
+char number_array[] = "0123456789";
+char* arrays[] = {letter_array, symbol_array, number_array};
+
+int case_iterator;  //case_iterator keeps track of which set of symbols is to be used: alphabetical characters, numbers, or misc symbols
+int symbols_indexor[3];  //this keeps track of the symbol being selected for each set of characters
+int indexes[] = {26,31,10}; //this stores the size of each set of characters, which is used in modulo operations to loop the incrementation after reaching the size of the vocabulary
+
+int loop_count;
 
 void setup() {
-  helper = 'a';
-  text = '';
-  char* display;
-  l_interator=0;
-  s_iterator=0;
-  n_iterator=0;
-  case_interator=0;
-  lcd.begin(16, 2);                 //tell the lcd library that we are using a display that is 16 characters wide and 2 characters high
-  lcd.clear();                      //clear the display
+
+  //set pin modes for buttons to be used as inputs
+  pinMode(yellow_button, INPUT_PULLUP);
+  pinMode(red_button, INPUT_PULLUP);
+  pinMode(green_button, INPUT_PULLUP);
+
+  helper_symbol = 'a';
+  text = "";
+  case_iterator=0;
+  for (int i=0;i<3;i++){symbols_indexor[i]=0;}
+  
+  lcd.begin(16, 2);
+  lcd.clear(); 
+  loop_count = 0;              
 }
 
 void loop() {
 
+  //delete character if both green and red are pressed
+  if (digitalRead(green_button) == LOW && digitalRead(red_button) == LOW && text.length() > 0){
+    text = text.substring(0,text.length()-1);
+    delay(500);
+    }
+  
+  //increment case_iterator if yellow button is pressed
   if (digitalRead(yellow_button) == LOW) {
     case_iterator += 1;
-    case iterator = case_iterator%4;
-    symbols[1]=0;
-    symbols[2]=0;
+    case_iterator = (case_iterator % 4);
+    symbols_indexor[2]=0; //reset indexing value for misc symbols for convenience, since the array is sorted by approx. frequency of use
+    delay(500);  //delay to prevent multiple incrementations from a single button press
+
+    //case iterator values of 0 and 1 both index the letter array, which is stored at index 0 of arrays, 
+    //so the case_incrementor values of 0 and 1 are transformed to 0 when indexing.  
+    //likewise, values of 2,3 are transformed to 1,2, to match the arrays indexing ({letters,nums,symbols}), which has only 3 indexes
+    //this allows for the same iterator value to be used for both upper and lower case alphabetical values
+    helper_symbol = arrays[max(case_iterator-1,0)][symbols_indexor[max(case_iterator-1,0)]];
+    if (case_iterator == 1){helper_symbol = toupper(helper_symbol);}
     }
+
+  //increment symbol iterator when red button is pressed; this iterates through the symbols
   else if (digitalRead(red_button) == LOW) {
-    symbols[case_iterator] = (symbols[case_iterator] + 1) % indexes[case_iterator];
-    helper = arrays[case_iterator][symbols[case_iterator]]
-    if {case_iterator == 1}{helper = helper - a + A}
+    
+    //like above, case_iterator values of 0,1 are transformed to 0, and 2,3 to 1,2.  This is to make case_iterator values of both 0,1 map to the same letter_array subarray.  
+    //The arrays array has 3 subarrays, so the the values must be within range [0,2].  Ie, 0,1->0 (letters), 2->1 (nums), 4->3 (misc symbols)
+    symbols_indexor[max(case_iterator-1,0)] = (symbols_indexor[max(case_iterator-1,0)] + 1) % indexes[max(case_iterator-1,0)];
+    helper_symbol = arrays[max(case_iterator-1,0)][symbols_indexor[max(case_iterator-1,0)]];
+    if (case_iterator == 1){helper_symbol = toupper(helper_symbol);}
+    delay(500);
   }
 
+  //Add selected symbol to display text when green button is pressed
   else if (digitalRead(green_button) == LOW) {
-    text += helper;
-    symbols[1] = 0;
-    symbols[2] = 0;
+    text += helper_symbol;
+
+    //reset nums and misc symbols indexes to 0 for convenience
+    symbols_indexor[1] = 0;
+    symbols_indexor[2] = 0;
+    delay(500);
     }
+  
+  //print text and symbol selection to the lcd screen
   lcd.setCursor(0, 0);
-  lcd.print(helper);
+  lcd.print(helper_symbol);
   
   lcd.setCursor(0, 1); 
-  if( text.length() <= 16){lcd.print(text); }
-  else{lcd.print(text.substr(text.length()-16,16));}
-       
+  //if text doesn't fill screen, add blinking char to indicate index of screen being written to
+  if(text.length() <= 16){
+    lcd.print(text);
+    lcd.setCursor(text.length(),1) ;
+    if (loop_count==0){
+      lcd.print(" ");
+      delay(200);
+      }
+    else{lcd.print(helper_symbol);}
+    }
+  //if text is greater than screen size, display only the last 16 characters of the text
+  else{lcd.print(text.substring(text.length()-16,16));}
+  delay(50);
+  loop_count = (loop_count + 1) % 10; //keep loop_count repeating through 0-10
+
 }
