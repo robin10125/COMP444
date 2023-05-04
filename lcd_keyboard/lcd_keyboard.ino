@@ -18,7 +18,7 @@ String text;  //text to be displayed
 char helper_symbol;  //helper value that stores potential character selection
 
 //the following arrays store the symbols to be used in the vocabulary of the program
-char letter_array[] = "abcdefghijklmnopqrstuvwxyx";
+char letter_array[] = "abcdefghijklmnopqrstuvwxyz";
 char symbol_array[] = " '.,-!\"?()[]{}:;@$&/\\%#+=*|^_<>";
 char number_array[] = "0123456789";
 char* arrays[] = {letter_array, symbol_array, number_array};
