@@ -50,6 +50,7 @@ void loop() {
 
   //delete character if both green and red are pressed
   if (digitalRead(green_button) == LOW && digitalRead(red_button) == LOW && text.length() > 0){
+    lcd.clear();
     text = text.substring(0,text.length()-1);
     delay(500);
     }
