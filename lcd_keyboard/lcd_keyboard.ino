@@ -21,7 +21,7 @@ char helper_symbol;  //helper value that stores potential character selection
 char letter_array[] = "abcdefghijklmnopqrstuvwxyz";
 char symbol_array[] = " '.,-!\"?()[]{}:;@$&/\\%#+=*|^_<>";
 char number_array[] = "0123456789";
-char* arrays[] = {letter_array, symbol_array, number_array};
+char* nested_symbols_array[] = {letter_array, symbol_array, number_array};
 
 int case_iterator;  //case_iterator keeps track of which set of symbols is to be used: alphabetical characters, numbers, or misc symbols
 int symbols_indexor[3];  //this keeps track of the symbol being selected for each set of characters
@@ -64,9 +64,9 @@ void loop() {
 
     //case iterator values of 0 and 1 both index the letter array, which is stored at index 0 of arrays, 
     //so the case_incrementor values of 0 and 1 are transformed to 0 when indexing.  
-    //likewise, values of 2,3 are transformed to 1,2, to match the arrays indexing ({letters,nums,symbols}), which has only 3 indexes
+    //likewise, values of 2,3 are transformed to 1,2, to match the nested array's indexing ({letters,nums,symbols}), which has only 3 indexes
     //this allows for the same iterator value to be used for both upper and lower case alphabetical values
-    helper_symbol = arrays[max(case_iterator-1,0)][symbols_indexor[max(case_iterator-1,0)]];
+    helper_symbol = nested_symbols_array[max(case_iterator-1,0)][symbols_indexor[max(case_iterator-1,0)]];
     if (case_iterator == 1){helper_symbol = toupper(helper_symbol);}
     }
 
@@ -74,9 +74,9 @@ void loop() {
   else if (digitalRead(red_button) == LOW) {
     
     //like above, case_iterator values of 0,1 are transformed to 0, and 2,3 to 1,2.  This is to make case_iterator values of both 0,1 map to the same letter_array subarray.  
-    //The arrays array has 3 subarrays, so the the values must be within range [0,2].  Ie, 0,1->0 (letters), 2->1 (nums), 4->3 (misc symbols)
+    //The nested_synmbols_array has 3 subarrays, so the the values must be within range [0,2].  Ie, 0,1->0 (letters), 2->1 (nums), 4->3 (misc symbols)
     symbols_indexor[max(case_iterator-1,0)] = (symbols_indexor[max(case_iterator-1,0)] + 1) % indexes[max(case_iterator-1,0)];
-    helper_symbol = arrays[max(case_iterator-1,0)][symbols_indexor[max(case_iterator-1,0)]];
+    helper_symbol = nested_symbols_array[max(case_iterator-1,0)][symbols_indexor[max(case_iterator-1,0)]];
     if (case_iterator == 1){helper_symbol = toupper(helper_symbol);}
     delay(500);
   }
