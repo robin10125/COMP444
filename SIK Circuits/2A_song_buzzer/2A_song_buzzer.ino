@@ -30,7 +30,7 @@ void setup()
 void loop() {
   Serial.println("Begin song!");
   // put your main code here, to run repeatedly:
-  for (int i = 1; i<num_notes; i++){
+  for (int i=0; i<num_notes; i++){
     beats = music_sequence[i][1];
     frequency = frequencies[music_sequence[i][0]];
     Serial.println(frequency);
