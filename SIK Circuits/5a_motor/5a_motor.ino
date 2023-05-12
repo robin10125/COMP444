@@ -1,11 +1,14 @@
 /*
 This program borrows heavily from SIK Circuit 5a MotorBasics from the SIK handbook
 */
+
 //PIN VARIABLES
-//the motor will be controlled by the motor A pins on the motor driver
-const int AIN1 = 13;           //control pin 1 on the motor driver for the right motor
-const int AIN2 = 12;            //control pin 2 on the motor driver for the right motor
-const int PWMA = 11;            //speed control pin on the motor driver for the right motor
+const int AIN1 = 13;           
+const int AIN2 = 12;  
+const int BIN1 = 8;          
+const int BIN2 = 9;                     
+const int PWMA = 11;  
+const int PWMB = 10;           
 
 int switch_pin = 7;             //switch to turn the robot on and off
 
