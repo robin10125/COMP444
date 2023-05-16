@@ -11,12 +11,14 @@ const int BIN2 = 9;                      //control pin 2 on the motor driver for
 const int PWMA = 11;  
 const int PWMB = 10;          //speed control pin on the motor driver for the right motor
 
+
 int switch_pin = 7;             //switch to turn the robot on and off
 
 int speed;       
 char direction; 
 
 void setup() {
+  //motor control
   pinMode(switch_pin, INPUT_PULLUP);
   pinMode(AIN1, OUTPUT);
   pinMode(AIN2, OUTPUT);
@@ -36,7 +38,6 @@ void loop() {
   
   if (Serial.available() > 0) {         //if the user has entered something in the serial monitor
     char input = char(Serial.read());  
-    Serial.println(input); 
     //check for speed input
     if (input == '1' || input == '2' || input == '3' || input == '4' || input == '5' || input == '6' || input == '7' || input == '8' || input == '9'){
       speed = int(input-'0')*25;
@@ -54,7 +55,7 @@ void loop() {
   }
   
   if (digitalRead(7) == 1) { 
-    
+
     if (direction == 'w'){
       spin_motor_right(speed);
       spin_motor_left(speed);
@@ -64,12 +65,12 @@ void loop() {
       spin_motor_left(-speed);
     }
     if (direction == 'a'){
-      spin_motor_right(0.5*speed);
-      spin_motor_left(-0.5*speed);
+      spin_motor_right(speed);
+      spin_motor_left(-speed);
     }
     if (direction == 'd'){
-      spin_motor_right(-0.5*speed);
-      spin_motor_left(0.5*speed);
+      spin_motor_right(-speed);
+      spin_motor_left(speed);
     }
     if (direction == ' '){
       spin_motor_right(0);
@@ -83,10 +84,11 @@ void loop() {
   delay(100);
   
 }
+
 //spinMotor function taken from SIK Circuit 5a MotorBasics
 void spin_motor_right(int motor_speed)                       //function for driving the right motor
 {
-  Serial.println(motor_speed);
+
   if (motor_speed > 0)                                 //if the motor should drive forward (positive speed)
   {
     digitalWrite(AIN1, HIGH);                         //set pin 1 to high
